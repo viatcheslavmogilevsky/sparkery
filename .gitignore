@@ -1,2 +1,7 @@
 /.virtualenv/*
 !/.virtualenv/.keep
+
+/secrets/*
+!/secrets/.keep
+
+.DS_Store

@@ -1,0 +1,19 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: make a keypair with the specified name
+      ec2_key:
+        name: sparkery
+        wait: yes
+      register: key_data
+
+    - name: save the key file to local host
+      copy:
+        content: "{{ key_data.key.private_key }}"
+        dest: secrets/private-key-file
+        mode: 0600
+      when: key_data.key.private_key|default(0)
+
+    - name: debug keypair
+      debug: msg="{{ key_data }}"
