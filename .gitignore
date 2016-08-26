@@ -2,6 +2,6 @@
 !/.virtualenv/.keep
 
 /secrets/*
-!/secrets/.keep
+!/secrets/env.example
 
 .DS_Store

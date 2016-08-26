@@ -1,0 +1,43 @@
+- hosts:
+   - tag_Name_sparkery_worker
+   - tag_Name_sparkery_master
+  vars:
+    spark_env_extras:
+      SPARK_WORKER_CORES: 6
+      SPARK_PUBLIC_DNS: "{{ inventory_hostname }}"
+    spark_user: "{{ ansible_ssh_user }}"
+    spark_run_dir: /run/spark
+  become: true
+  gather_facts: false
+  pre_tasks:
+    - name: Ensure Spark run directory exist
+      file:
+        path: "{{ spark_run_dir }}"
+        owner: "{{ spark_user }}"
+        group: "{{ spark_user }}"
+        mode: "0755"
+        state: directory
+  roles:
+    - role: sparkery.spark-config
+
+
+- hosts: tag_Name_sparkery_master
+  tasks:
+    - name: fill slave list
+      copy:
+        content: |
+          {% for hostname in groups['tag_Name_sparkery_worker']|sort  %}
+          {{ hostvars[hostname]['ec2_private_ip_address'] }}
+          {% endfor %}
+        dest: /usr/lib/spark/conf/slaves
+      become: true
+      tags: master
+
+    - name: copy pem file
+      copy:
+        src: secrets/private-key-file
+        dest: ~/.ssh/id_rsa
+        owner: "{{ ansible_ssh_user }}"
+        group: "{{ ansible_ssh_user }}"
+        mode: 0600
+      tags: master

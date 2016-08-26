@@ -1,11 +1,29 @@
 variable "access_key" {}
 variable "secret_key" {}
 variable "region" {}
+variable "master_instance_ip" {
+    default = "10.0.0.11"
+}
+variable "worker_instance_ips" {
+    default = {
+      "0" = "10.0.0.12"
+      "1" = "10.0.0.13"
+      "2" = "10.0.0.14"
+    }
+}
 
 provider "aws" {
   access_key = "${var.access_key}"
   secret_key = "${var.secret_key}"
   region     = "${var.region}"
+}
+
+data "aws_ami" "sparkery-common-ami" {
+  owners = ["self"]
+  filter {
+    name = "name"
+    values = ["sparkery-packer-common"]
+  }
 }
 
 resource "aws_vpc" "sparkery-vpc" {
@@ -133,29 +151,8 @@ resource "aws_security_group" "sparkery-security-group-web" {
     }
 
     ingress {
-        from_port = 80
-        to_port = 80
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    ingress {
-        from_port = 443
-        to_port = 443
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    ingress {
-        from_port = 4000
-        to_port = 5000
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    ingress {
-        from_port = 8000
-        to_port = 9000
+        from_port = 0
+        to_port = 65535
         protocol = "tcp"
         cidr_blocks = ["0.0.0.0/0"]
     }
@@ -168,7 +165,7 @@ resource "aws_instance" "sparkery-aws-instance-master" {
        Environment = "sparkery"
        Name = "sparkery-master"
     }
-    ami = "ami-26c43149"
+    ami = "${data.aws_ami.sparkery-common-ami.id}"
     vpc_security_group_ids = [
       "${aws_security_group.sparkery-security-group-common.id}",
       "${aws_security_group.sparkery-security-group-inside.id}",
@@ -177,11 +174,12 @@ resource "aws_instance" "sparkery-aws-instance-master" {
     subnet_id = "${aws_subnet.sparkery-vpc-subnet-a.id}"
     associate_public_ip_address = true
     availability_zone = "${var.region}a"
+    private_ip = "${var.master_instance_ip}"
 
-    root_block_device {
-      volume_type = "standard"
-      volume_size = 200
-    }
+    // root_block_device {
+    //   volume_type = "standard"
+    //   volume_size = 200
+    // }
 }
 
 resource "aws_instance" "sparkery-aws-instance-worker" {
@@ -192,7 +190,7 @@ resource "aws_instance" "sparkery-aws-instance-worker" {
        Environment = "sparkery"
        Name = "sparkery-worker"
     }
-    ami = "ami-26c43149"
+    ami = "${data.aws_ami.sparkery-common-ami.id}"
     vpc_security_group_ids = [
       "${aws_security_group.sparkery-security-group-common.id}",
       "${aws_security_group.sparkery-security-group-inside.id}",
@@ -201,9 +199,10 @@ resource "aws_instance" "sparkery-aws-instance-worker" {
     subnet_id = "${aws_subnet.sparkery-vpc-subnet-a.id}"
     associate_public_ip_address = true
     availability_zone = "${var.region}a"
+    private_ip = "${lookup(var.worker_instance_ips, count.index)}"
 
-    root_block_device {
-      volume_type = "standard"
-      volume_size = 200
-    }
+    // root_block_device {
+    //   volume_type = "standard"
+    //   volume_size = 200
+    // }
 }

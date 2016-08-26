@@ -1,0 +1,7 @@
+---
+spark_log_dir: "/var/log/spark"
+spark_run_dir: "/run/spark"
+spark_conf_dir: "/etc/spark"
+
+spark_env_extras: {}
+spark_defaults_extras: {}

@@ -1,0 +1,22 @@
+{
+  "variables": {
+    "access_key": "{{env `AWS_ACCESS_KEY_ID`}}",
+    "secret_key": "{{env `AWS_SECRET_ACCESS_KEY`}}",
+    "region": "{{ env `AWS_REGION` }}"
+  },
+  "builders": [{
+    "type": "amazon-ebs",
+    "access_key": "{{user `access_key`}}",
+    "secret_key": "{{user `secret_key`}}",
+    "region": "{{user `region`}}",
+    "source_ami": "ami-26c43149",
+    "instance_type": "m4.large",
+    "ssh_username": "ubuntu",
+    "ami_name": "sparkery-packer-common"
+  }],
+  "provisioners": [{
+    "type": "ansible",
+    "playbook_file": "./provision.yml",
+    "user": "ubuntu"
+  }]
+}

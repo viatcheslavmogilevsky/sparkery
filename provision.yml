@@ -1,0 +1,6 @@
+- hosts: all
+  become: true
+  vars:
+    spark_user: "{{ ansible_ssh_user }}"
+  roles:
+    - sparkery.spark-install
