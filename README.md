@@ -9,14 +9,13 @@ $ virtualenv .virtualenv
 $ . .virtualenv/bin/activate
 $ pip install -r requirements.txt
 ```
-
 2.  [Packer](https://www.packer.io/), I prefer to place packer binary into .virtualenv/bin
 3.  [Terraform](https://www.terraform.io/),  I prefer to place terraform binary into .virtualenv/bin
 4.  AWS account and its credentials - I prefer to have `env` file which loads credentails into environment variables:
 ``` bash
 $ . secrets/env
 ```
-    See secrets/env.example - this is only one file in secrets directory which tracked by git - see .gitignore.
+See secrets/env.example - this is only one file in secrets directory which tracked by git - see .gitignore.
 
 ### Bootstrap
 
@@ -34,7 +33,7 @@ $ packer build common-ami.json
 ``` bash
 $ terraform apply
 ```
-    then go to aws console - you should see running instances
+then go to aws console - you should see running instances
 
 ### Usage
 
