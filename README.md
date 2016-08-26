@@ -20,12 +20,17 @@ $ . secrets/env
 
 ### Bootstrap
 
-1.  Build your private AMI by packer:
+1.  Generate and download keypair for EC2 instances:
+``` bash
+$ ansible-playbook keypair.yml
+```
+
+2.  Build your private AMI by packer:
 ``` bash
 $ packer build common-ami.json
 ```
 
-2. Build infrastructure by terraform:
+3. Build infrastructure by terraform:
 ``` bash
 $ terraform apply
 ```
